@@ -34,7 +34,7 @@
     local task_layers = 1,
     
     "type": "udify_model",
-    "tasks": ["upos", "xpos", "feats", "lemmas", "deps"],
+    "tasks": ["deps"], // only train on deps
     "dropout": global_dropout,
     "word_dropout": 0.2,
     "text_field_embedder": {
@@ -169,7 +169,7 @@
     "grad_clipping": 10.0,
     "cuda_device": 0
   },
-//  "random_seed": 13370,
-//  "numpy_seed": 1337,
-//  "pytorch_seed": 133
+  "random_seed": 65,
+  "numpy_seed": 65,
+  "pytorch_seed": 65
 }

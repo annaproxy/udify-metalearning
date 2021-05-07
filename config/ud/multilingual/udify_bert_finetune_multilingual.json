@@ -14,11 +14,11 @@
       }
     }
   },
-  "train_data_path": "data/ud/multilingual/train.conllu",
-  "validation_data_path": "data/ud/multilingual/dev.conllu",
-  "test_data_path": "data/ud/multilingual/test.conllu",
+  "train_data_path": "expmixvocab3/train.conllu",
+  "validation_data_path": "expmixvocab3/dev.conllu",
+  "test_data_path": "expmixvocab3/test.conllu",
   "vocabulary": {
-    "directory_path": "data/vocab/multilingual/vocabulary"
+    "directory_path": "data/vocab/english_only_expmix4/vocabulary"
   },
   "model": {
     "word_dropout": 0.2,

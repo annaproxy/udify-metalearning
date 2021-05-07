@@ -5,7 +5,7 @@ The base UDify model for training and prediction
 from typing import Optional, Any, Dict, List, Tuple
 from overrides import overrides
 import logging
-
+import allennlp
 import torch
 
 from pytorch_pretrained_bert.tokenization import BertTokenizer
@@ -20,7 +20,6 @@ from allennlp.nn.util import get_text_field_mask
 from udify.modules.scalar_mix import ScalarMixWithDropout
 
 logger = logging.getLogger(__name__)
-
 
 @Model.register("udify_model")
 class UdifyModel(Model):
@@ -81,11 +80,14 @@ class UdifyModel(Model):
                 tokens: Dict[str, torch.LongTensor],
                 metadata: List[Dict[str, Any]] = None,
                 **kwargs: Dict[str, torch.LongTensor]) -> Dict[str, torch.Tensor]:
+        tokens = allennlp.nn.util.move_to_device(tokens,0)
+        
         if "track_epoch" in kwargs:
             track_epoch = kwargs.pop("track_epoch")
 
         gold_tags = kwargs
-
+        gold_tags = allennlp.nn.util.move_to_device(gold_tags, 0)
+        
         if "tokens" in self.tasks:
             # Model is predicting tokens, so add them to the gold tags
             gold_tags["tokens"] = tokens["tokens"]
@@ -97,7 +99,7 @@ class UdifyModel(Model):
 
         if self.post_encoder_embedder:
             post_embeddings = self.post_encoder_embedder(tokens)
-
+        
         encoded_text = self.shared_encoder(embedded_text_input, mask)
 
         logits = {}

@@ -18,13 +18,13 @@
   "validation_data_path": "data/ud-treebanks-v2.3/UD_English-EWT/en_ewt-ud-dev.conllu",
   "test_data_path": "data/ud-treebanks-v2.3/UD_English-EWT/en_ewt-ud-test.conllu",
   "vocabulary": {
-    "directory_path": "data/vocab/en_ewt/vocabulary"
+    "directory_path": "data/vocab/english_only_expmix4/vocabulary"
   },
   "model": {
     "word_dropout": 0.2,
     "mix_embedding": 12,
     "layer_dropout": 0.1,
-    "tasks": ["upos", "feats", "lemmas", "deps"],
+    "tasks": ["deps"],
     "text_field_embedder": {
       "type": "udify_embedder",
       "dropout": 0.5,
@@ -79,12 +79,11 @@
     }
   },
   "iterator": {
-    "batch_size": 32,
-    "maximum_samples_per_batch": ["num_tokens", 32 * 100]
+    "batch_size": 16
   },
   "trainer": {
-    "num_epochs": 80,
-    "patience": 80,
+    "num_epochs": 5,
+    "patience": 40,
     "num_serialized_models_to_keep": 1,
     "should_log_learning_rate": true,
     "summary_interval": 100,
