@@ -2,7 +2,7 @@
 A Vocabulary maps strings to integers, allowing for strings to be mapped to an
 out-of-vocabulary token.
 """
-
+from __future__ import unicode_literals
 import codecs
 import copy
 import logging
@@ -281,13 +281,13 @@ class Vocabulary(Registrable):
         if os.listdir(directory):
             logging.warning("vocabulary serialization directory %s is not empty", directory)
 
-        with codecs.open(os.path.join(directory, NAMESPACE_PADDING_FILE), 'w', 'utf-8') as namespace_file:
+        with open(os.path.join(directory, NAMESPACE_PADDING_FILE), 'w', encoding='utf-8') as namespace_file:
             for namespace_str in self._non_padded_namespaces:
                 print(namespace_str, file=namespace_file)
 
         for namespace, mapping in self._index_to_token.items():
             # Each namespace gets written to its own file, in index order.
-            with codecs.open(os.path.join(directory, namespace + '.txt'), 'w', 'utf-8') as token_file:
+            with open(os.path.join(directory, namespace + '.txt'), 'w', encoding='utf-8') as token_file:
                 num_tokens = len(mapping)
                 start_index = 1 if mapping[0] == self._padding_token else 0
                 for i in range(start_index, num_tokens):
@@ -304,7 +304,7 @@ class Vocabulary(Registrable):
             The directory containing the serialized vocabulary.
         """
         logger.info("Loading token dictionary from %s.", directory)
-        with codecs.open(os.path.join(directory, NAMESPACE_PADDING_FILE), 'r', 'utf-8') as namespace_file:
+        with open(os.path.join(directory, NAMESPACE_PADDING_FILE), 'r', encoding='utf-8') as namespace_file:
             non_padded_namespaces = [namespace_str.strip() for namespace_str in namespace_file]
 
         vocab = cls(non_padded_namespaces=non_padded_namespaces)
@@ -362,7 +362,7 @@ class Vocabulary(Registrable):
         else:
             self._token_to_index[namespace] = {}
             self._index_to_token[namespace] = {}
-        with codecs.open(filename, 'r', 'utf-8') as input_file:
+        with open(filename, 'r', encoding='utf-8') as input_file:
             lines = input_file.read().split('\n')
             # Be flexible about having final newline or not
             if lines and lines[-1] == '':

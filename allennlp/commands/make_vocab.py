@@ -26,6 +26,8 @@ each training run.
       --include-package INCLUDE_PACKAGE
                             additional packages to include
 """
+from __future__ import unicode_literals
+
 import argparse
 import logging
 import os

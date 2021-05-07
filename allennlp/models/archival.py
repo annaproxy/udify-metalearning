@@ -191,7 +191,7 @@ def load_archive(archive_file: str,
     # Check for supplemental files in archive
     fta_filename = os.path.join(serialization_dir, _FTA_NAME)
     if os.path.exists(fta_filename):
-        with open(fta_filename, 'r') as fta_file:
+        with open(fta_filename, 'r', encoding='utf-8') as fta_file:
             files_to_archive = json.loads(fta_file.read())
 
         # Add these replacements to overrides

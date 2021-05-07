@@ -136,7 +136,7 @@ class _PredictManager:
         self._predictor = predictor
         self._input_file = input_file
         if output_file is not None:
-            self._output_file = open(output_file, "w")
+            self._output_file = open(output_file, "w", encoding='utf-8')
         else:
             self._output_file = None
         self._batch_size = batch_size

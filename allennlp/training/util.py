@@ -221,10 +221,10 @@ def _set_up_cache_files(train_params: Params,
     # different parameters, without clearing the cache first.  But correctly handling that case
     # is more work than it's worth.
     os.makedirs(train_cache_dir, exist_ok=True)
-    with open(train_cache_dir / 'params.json', 'w') as param_file:
+    with open(train_cache_dir / 'params.json', 'w',  encoding='utf-8') as param_file:
         json.dump(train_params.as_dict(quiet=True), param_file)
     os.makedirs(validation_cache_dir, exist_ok=True)
-    with open(validation_cache_dir / 'params.json', 'w') as param_file:
+    with open(validation_cache_dir / 'params.json', 'w', encoding='utf-8') as param_file:
         if validation_params:
             json.dump(validation_params.as_dict(quiet=True), param_file)
         else:
