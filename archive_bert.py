@@ -7,13 +7,18 @@ import argparse
 
 from udify import util
 
-logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
-                    level=logging.INFO)
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s", level=logging.INFO
+)
 logger = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser()
-parser.add_argument("archive_dir", type=str, help="The directory where model.tar.gz resides")
-parser.add_argument("--output_path", default=None, type=str, help="The path to output the file")
+parser.add_argument(
+    "archive_dir", type=str, help="The directory where model.tar.gz resides"
+)
+parser.add_argument(
+    "--output_path", default=None, type=str, help="The path to output the file"
+)
 
 args = parser.parse_args()
 
