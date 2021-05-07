@@ -1,6 +1,7 @@
 """
 A collection of handy utilities
 """
+from __future__ import unicode_literals
 
 from typing import List, Tuple, Dict, Any
 
@@ -21,6 +22,7 @@ from allennlp.commands.predict import _PredictManager
 from allennlp.common.checks import check_for_gpu
 from allennlp.models.archival import load_archive
 from allennlp.predictors.predictor import Predictor
+from allennlp.data import DatasetReader, Instance
 
 from udify.dataset_readers.evaluate_2019_task2 import read_conllu, input_pairs, manipulate_data
 
@@ -133,6 +135,40 @@ def get_ud_treebank_names(dataset_dir: str) -> List[Tuple[str, str]]:
 
     return list(zip(treebanks, short_names))
 
+##------------------------------ No Zip --------------------------------------
+def predict_model_without_archive(model, predictor: str, params: Params, serialization_dir: str,
+                                  gold_file: str, # Gold predictions
+                                  pred_file: str,  # Predictions output file
+                                  output_file: str, # Json output file
+                                  segment_file: str = None, batch_size: int = 1):
+    """
+    metatest_all.py
+    allennlp/predictors/predictor.py
+    """
+    cuda_device = params["trainer"]["cuda_device"]
+    check_for_gpu(cuda_device)
+
+    segment_file = segment_file if segment_file else gold_file
+    dataset_reader_to_load = 'validation' #Default and is used
+    # -> config here as specified in <Predictor.from_archive>
+    overrides = ''
+    config = Params.from_file(os.path.join(serialization_dir, 'config.json'), overrides)
+    dataset_reader_params = config["dataset_reader"]
+    dataset_reader = DatasetReader.from_params(dataset_reader_params)
+
+    model.eval()
+    predictor = Predictor.by_name(predictor)(model, dataset_reader)
+
+    manager = _PredictManager(predictor,
+                              segment_file,
+                              pred_file,
+                              batch_size,
+                              print_to_console=False,
+                              has_dataset_reader=True)
+    manager.run()
+    evaluation = evaluate(load_conllu_file(gold_file), load_conllu_file(pred_file))
+    save_metrics(evaluation, output_file)
+##-----------------------------------------------------------------------------
 
 def predict_model_with_archive(predictor: str, params: Params, archive: str,
                                input_file: str, output_file: str, batch_size: int = 1):
@@ -156,9 +192,9 @@ def predict_model_with_archive(predictor: str, params: Params, archive: str,
 def predict_and_evaluate_model_with_archive(predictor: str, params: Params, archive: str, gold_file: str,
                                pred_file: str, output_file: str, segment_file: str = None, batch_size: int = 1):
     if not gold_file or not os.path.isfile(gold_file):
-        logger.warning(f"No file exists for {gold_file}")
         return
 
+    #logger.warning(f"No file exists for {gold_file}")
     segment_file = segment_file if segment_file else gold_file
     predict_model_with_archive(predictor, params, archive, segment_file, pred_file, batch_size)
 
@@ -166,6 +202,7 @@ def predict_and_evaluate_model_with_archive(predictor: str, params: Params, arch
         evaluation = evaluate(load_conllu_file(gold_file), load_conllu_file(pred_file))
         save_metrics(evaluation, output_file)
     except UDError:
+        raise ValueError("Just fucking kill me already")
         logger.warning(f"Failed to evaluate {pred_file}")
         traceback.print_exc()
 
@@ -211,7 +248,7 @@ def save_metrics(evaluation: Dict[str, Any], output_file: str):
     :param output_file: the output file to save
     """
     evaluation_dict = {k: v.__dict__ for k, v in evaluation.items()}
-
+    print("IM GOING TO SAVE METRICS TO", output_file)
     with open(output_file, "w") as f:
         json.dump(evaluation_dict, f, indent=4)
 
