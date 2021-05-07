@@ -3,7 +3,6 @@ A Dataset Reader for Universal Dependencies, with support for multiword tokens a
 """
 
 from typing import Dict, Tuple, List, Any, Callable
-
 from overrides import overrides
 from udify.dataset_readers.parser import parse_line, DEFAULT_FIELDS
 
@@ -16,8 +15,44 @@ from allennlp.data.tokenizers.word_splitter import SpacyWordSplitter, WordSplitt
 from allennlp.data.tokenizers import Token
 
 from udify.dataset_readers.lemma_edit import gen_lemma_rule
-
+import numpy as np 
 import logging
+from collections import defaultdict 
+import numpy as np
+class ProjectiveChecker():
+    def __init__(self, heads):
+        self.heads = heads 
+        self.the_heads = [(i+1, h) for i,h in enumerate(heads)]
+        self.children = defaultdict(list)
+        for i,j in self.the_heads:
+            self.children[j].append(i)
+
+    def is_ancestor(self, ancestor,j):
+        if j in self.children[ancestor]:
+            return True 
+        for c in self.children[ancestor]:
+            if self.is_ancestor(c,j): return True
+        return False 
+
+    def is_ancestor_wrap(self, ancestor,j):
+        if ancestor == j: return True 
+        return self.is_ancestor(ancestor, j)
+
+    def check_projective(self):
+        proj = True
+        for i,j in self.the_heads: 
+            if j == 0: continue 
+            if np.abs(i-j) == 1: continue 
+            if j > i: 
+                for check in range(i,j):
+                    if not self.is_ancestor_wrap(j, check):
+                        proj = False;break
+            if i > j: 
+                for check in range(j,i):
+                    if not self.is_ancestor_wrap(j, check):
+                        proj = False;break
+        return proj 
+
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
@@ -31,6 +66,15 @@ def lazy_parse(text: str, fields: Tuple[str, ...]=DEFAULT_FIELDS):
                    if line and not line.strip().startswith("#")]
 
 
+class Node:
+    def __init__(self, dataval=None):
+        self.dataval = dataval
+        self.nextval = None
+
+class SLinkedList:
+    def __init__(self):
+        self.headval = None
+
 @DatasetReader.register("udify_universal_dependencies")
 class UniversalDependenciesDatasetReader(DatasetReader):
     def __init__(self,
@@ -41,10 +85,11 @@ class UniversalDependenciesDatasetReader(DatasetReader):
 
     @overrides
     def _read(self, file_path: str):
+        NONPROJEC = 0 
         # if `file_path` is a URL, redirect to the cache
         file_path = cached_path(file_path)
-
-        with open(file_path, 'r') as conllu_file:
+        print(file_path)
+        with open(file_path, 'r', encoding='utf-8') as conllu_file:
             logger.info("Reading UD instances from conllu dataset at: %s", file_path)
 
             for annotation in lazy_parse(conllu_file.read()):
@@ -79,10 +124,17 @@ class UniversalDependenciesDatasetReader(DatasetReader):
                                                      if hasattr(x, "items") else "_")
                 heads = get_field("head")
                 dep_rels = get_field("deprel")
+                
+                p = ProjectiveChecker(heads)
+                if not p.check_projective(): NONPROJEC += 1
+                #print(p.check_projective())
+                
+                #raise ValueError("Printed dep_rels")
                 dependencies = list(zip(dep_rels, heads))
 
                 yield self.text_to_instance(words, lemmas, lemma_rules, upos_tags, xpos_tags,
                                             feats, dependencies, ids, multiword_ids, multiword_forms)
+        print(NONPROJEC)
 
     @overrides
     def text_to_instance(self,  # type: ignore
@@ -151,7 +203,7 @@ class UniversalDependenciesRawDatasetReader(DatasetReader):
         # if `file_path` is a URL, redirect to the cache
         file_path = cached_path(file_path)
 
-        with open(file_path, 'r') as conllu_file:
+        with open(file_path, 'r', encoding='utf-8') as conllu_file:
             for sentence in conllu_file:
                 if sentence:
                     words = [word.text for word in self.tokenizer.split_words(sentence)]
