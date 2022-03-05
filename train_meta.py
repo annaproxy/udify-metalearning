@@ -3,31 +3,29 @@
 This file Meta-Trains on 7 languages
 And validates on Bulgarian
 """
+from naming_conventions import train_languages, train_languages_lowercase
+from get_language_dataset import get_language_dataset
+from get_default_params import get_params
+from udify import util
+from ourmaml import MAML
+from udify.predictors import predictor
+from allennlp.common.util import prepare_environment
+from allennlp.models.model import Model
+from allennlp.models.archival import archive_model
+import allennlp
+from schedulers import get_cosine_schedule_with_warmup
+from torch.optim.lr_scheduler import LambdaLR
+from torch import autograd
+from torch.optim import Adam
+import torch
+import numpy as np
+import argparse
+import subprocess
+import json
 import sys
 import os
 
 sys.stdout.reconfigure(encoding="utf-8")
-import json
-import subprocess
-import argparse
-import numpy as np
-import torch
-from torch.optim import Adam
-from torch import autograd
-from torch.optim.lr_scheduler import LambdaLR
-from schedulers import get_cosine_schedule_with_warmup
-
-import allennlp
-from allennlp.models.archival import archive_model
-from allennlp.models.model import Model
-from allennlp.common.util import prepare_environment
-from udify.predictors import predictor
-
-from ourmaml import MAML
-from udify import util
-from get_default_params import get_params
-from get_language_dataset import get_language_dataset
-from naming_conventions import train_languages, train_languages_lowercase
 
 
 def main():
@@ -50,14 +48,18 @@ def main():
         type=bool,
         help="Do MAML instead of XMAML, that is, include English as an auxiliary task if flag is set and start from scratch",
     )
-    parser.add_argument(
-        "--addenglish", default=False, type=bool, help="Add English as a task"
-    )
-    parser.add_argument(
-        "--notaddhindi", default=False, type=bool, help="Add English as a task"
-    )
+    parser.add_argument("--addenglish", default=False,
+                        type=bool, help="Add English as a task")
+    parser.add_argument("--notaddhindi", default=False,
+                        type=bool, help="Skip Hindi as a task")
 
-    parser.add_argument("--episodes", default=900, type=int, help="Amount of episodes")
+    parser.add_argument("--notadditalian", default=False,
+                        type=bool, help="Skip Italian as a task")
+    parser.add_argument("--notaddczech", default=False,
+                        type=bool, help="Skip Czech as a task")
+
+    parser.add_argument("--episodes", default=900,
+                        type=int, help="Amount of episodes")
     parser.add_argument(
         "--updates", default=5, type=int, help="Amount of inner loop updates"
     )
@@ -89,30 +91,26 @@ def main():
     )
     args = parser.parse_args()
 
+    # Yes, i know.
     training_tasks = []
+    train_languages = np.array(train_languages)
+    train_languages_lowercase = np.array(train_languages_lowercase)
+    hindi_indices = [0, 1, 2, 3, 4, 6]
+    italian_indices = [0, 1, 3, 4, 5, 6]
+    czech_indices = [0, 2, 3, 4, 5, 6]
+    if args.notaddhindi:
+        train_languages = train_languages[hindi_indices]
+        train_languages_lowercase = train_languages_lowercase[hindi_indices]
+    elif args.notaddczech:
+        train_languages = train_languages[czech_indices]
+        train_languages_lowercase = train_languages_lowercase[czech_indices]
+    elif args.notadditalian:
+        train_languages = train_languages[italian_indices]
+        train_languages_lowercase = train_languages_lowercase[italian_indices]
 
-    # Yes, I know
     for lan, lan_l in zip(train_languages, train_languages_lowercase):
-        if "indi" in lan and not args.notaddhindi:
-            training_tasks.append(
-                get_language_dataset(
-                    lan, lan_l, seed=args.seed, support_set_size=args.support_set_size
-                )
-            )
-        elif "indi" in lan and args.notaddhindi:
-            continue
-        elif "indi" not in lan and not args.notaddhindi:
-            training_tasks.append(
-                get_language_dataset(
-                    lan, lan_l, seed=args.seed, support_set_size=args.support_set_size
-                )
-            )
-        elif "indi" not in lan and args.notaddhindi:
-            training_tasks.append(
-                get_language_dataset(
-                    lan, lan_l, seed=args.seed, support_set_size=args.support_set_size
-                )
-            )
+        training_tasks.append(get_language_dataset(
+            lan, lan_l, seed=args.seed, support_set_size=args.support_set_size))
 
     # Setting parameters
     DOING_MAML = args.maml

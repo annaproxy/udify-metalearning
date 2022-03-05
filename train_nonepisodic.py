@@ -23,52 +23,53 @@ from schedulers import get_cosine_schedule_with_warmup
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed", default=9999, type=int, help="Set seed")
-    parser.add_argument("--lr_decoder", default=None, type=float, help="Adaptation LR")
+    parser.add_argument("--lr_decoder", default=None,
+                        type=float, help="Adaptation LR")
     parser.add_argument(
         "--lr_bert", default=None, type=float, help="Adaptation LR for BERT layers"
     )
-    parser.add_argument("--episodes", default=600, type=int, help="Episode amount")
+    parser.add_argument("--episodes", default=600,
+                        type=int, help="Episode amount")
     parser.add_argument(
         "--model_dir",
         default=None,
         type=str,
         help="Directory from which to start training",
     )
-    parser.add_argument("--support_set_size", default=None, type=int, help="Batch size")
+    parser.add_argument("--support_set_size", default=None,
+                        type=int, help="Batch size")
     parser.add_argument("--name", default="", type=str, help="Extra name")
 
-    parser.add_argument(
-        "--addenglish", default=False, type=bool, help="Add English as a task"
-    )
-    parser.add_argument(
-        "--notaddhindi", default=False, type=bool, help="Add English as a task"
-    )
+    parser.add_argument("--addenglish", default=False,
+                        type=bool, help="Add English as a task")
+    parser.add_argument("--notaddhindi", default=False,
+                        type=bool, help="Skip Hindi as a task")
+    parser.add_argument("--notadditalian", default=False,
+                        type=bool, help="Skip Italian as a task")
+    parser.add_argument("--notaddczech", default=False,
+                        type=bool, help="Skip Czech as a task")
 
     args = parser.parse_args()
 
     training_tasks = []
+    train_languages = np.array(train_languages)
+    train_languages_lowercase = np.array(train_languages_lowercase)
+    hindi_indices = [0, 1, 2, 3, 4, 6]
+    italian_indices = [0, 2, 3, 4, 5, 6]
+    czech_indices = [1, 2, 3, 4, 5, 6]
+    if args.notaddhindi:
+        train_languages = train_languages[hindi_indices]
+        train_languages_lowercase = train_languages_lowercase[hindi_indices]
+    elif args.notaddczech:
+        train_languages = train_languages[czech_indices]
+        train_languages_lowercase = train_languages_lowercase[czech_indices]
+    elif args.notadditalian:
+        train_languages = train_languages[italian_indices]
+        train_languages_lowercase = train_languages_lowercase[italian_indices]
+
     for lan, lan_l in zip(train_languages, train_languages_lowercase):
-        # All these cases, JUST to be sure!
-        if "indi" in lan and not args.notaddhindi:
-            training_tasks.append(
-                get_language_dataset(
-                    lan, lan_l, seed=args.seed, support_set_size=args.support_set_size
-                )
-            )
-        elif "indi" in lan and args.notaddhindi:
-            continue
-        elif "indi" not in lan and not args.notaddhindi:
-            training_tasks.append(
-                get_language_dataset(
-                    lan, lan_l, seed=args.seed, support_set_size=args.support_set_size
-                )
-            )
-        elif "indi" not in lan and args.notaddhindi:
-            training_tasks.append(
-                get_language_dataset(
-                    lan, lan_l, seed=args.seed, support_set_size=args.support_set_size
-                )
-            )
+        training_tasks.append(get_language_dataset(
+            lan, lan_l, seed=args.seed, support_set_size=args.support_set_size))
 
     if args.addenglish:
         # Get another training task
