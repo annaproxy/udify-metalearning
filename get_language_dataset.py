@@ -1,7 +1,7 @@
 """
 Creates an old-style allennlp "dataloader" before pytorch niceness.
 Takes into account the languages without a training set -
- Make sure you have manually created the training sets for each of these.
+ Make sure you have manually created the training sets for each of these. This can be done with the script tools/split_files_manually.py
 """
 
 import argparse

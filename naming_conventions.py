@@ -1,7 +1,43 @@
 """
-The UDify filenames have some odd naming conventions sometimes.
+The filenames have some odd naming conventions sometimes.
 Used for automatically printing tables and iterating over all train data.
 """
+
+train_languages = [
+    "UD_Arabic-PADT",
+    "UD_Czech-PDT",
+    "UD_Italian-ISDT",
+    "UD_Norwegian-Nynorsk",
+    "UD_Russian-SynTagRus",
+    "UD_Hindi-HDTB",
+    "UD_Korean-Kaist",
+]
+
+train_languages_readable = [
+    "Arabic",
+    "Czech",
+    "English",
+    "Hindi",
+    "Italian",
+    "Korean",
+    "Norwegian",
+    "Russian",
+]
+
+train_languages_lowercase = [
+    "ar_padt-ud",
+    "cs_pdt-ud",
+    "it_isdt-ud",
+    "no_nynorsk-ud",
+    "ru_syntagrus-ud",
+    "hi_hdtb-ud",
+    "ko_kaist-ud",
+]
+
+validation_languages = ["UD_Bulgarian-BTB", "UD_Telugu-MTG"]
+
+validation_languages_lowercase = ["bg_btb-ud", "te_mtg-ud"]
+
 
 no_train_set = ["UD_Breton-KEB", "UD_Faroese-OFT", "UD_Swedish-PUD"]
 no_train_set_lowercase = ["br_keb-ud", "fo_oft-ud", "sv_pud-ud"]
@@ -111,16 +147,6 @@ languages_too_small_for_20_batch_20_lowercase = [
     "hsb_ufal-ud",
 ]
 
-train_languages_readable = [
-    "Arabic",
-    "Czech",
-    "English",
-    "Hindi",
-    "Italian",
-    "Korean",
-    "Norwegian",
-    "Russian",
-]
 
 languages_readable = [
     "Arabic",
@@ -179,26 +205,3 @@ languages_lowercase = [
     "ur_udtb-ud",
     "vi_vtb-ud",
 ]
-train_languages = [
-    "UD_Arabic-PADT",
-    "UD_Czech-PDT",
-    "UD_Italian-ISDT",
-    "UD_Norwegian-Nynorsk",
-    "UD_Russian-SynTagRus",
-    "UD_Hindi-HDTB",
-    "UD_Korean-Kaist",
-]
-
-train_languages_lowercase = [
-    "ar_padt-ud",
-    "cs_pdt-ud",
-    "it_isdt-ud",
-    "no_nynorsk-ud",
-    "ru_syntagrus-ud",
-    "hi_hdtb-ud",
-    "ko_kaist-ud",
-]
-
-validation_languages = ["UD_Bulgarian-BTB", "UD_Telugu-MTG"]
-
-validation_languages_lowercase = ["bg_btb-ud", "te_mtg-ud"]

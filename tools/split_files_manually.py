@@ -21,7 +21,7 @@ parser.add_argument("--seed", default=2002, type=int, help="Seed for the shuffle
 
 args = parser.parse_args()
 output_filename = os.path.join(
-    "data/ud-tiny-treebanks/size" + str(args.batch_size),
+    "../data/ud-tiny-treebanks/size" + str(args.batch_size),
     args.file.strip("-test.conllu").split("/")[-1],
 )
 

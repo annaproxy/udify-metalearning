@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Adapted from learn2learn library.
-Uses different learning rates for BERT and the Decoder.
+Adapted to use different learning rates for BERT and the Decoder.
 """
 import traceback
 from torch.autograd import grad

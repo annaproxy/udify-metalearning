@@ -77,3 +77,4 @@ def generate_distances(feature_name):
 
 
 cosines, binaryvecs = generate_distances(feature_name="syntax_knn")
+
