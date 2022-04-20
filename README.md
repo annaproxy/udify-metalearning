@@ -1,5 +1,5 @@
 # Meta-Learning for UD parsing
-Code for the paper "Meta-learning for fast cross-lingual adaptation in dependency parsing".
+Code for the paper ["Meta-learning for fast cross-lingual adaptation in dependency parsing"](https://arxiv.org/abs/2104.04736), to be published in [ACL 2022](https://www.2022.aclweb.org/papers).  
 
 This codebase extends UDify with Model-Agnostic Meta-Learning. 
 
@@ -45,8 +45,8 @@ This will save a model to the directory `saved_models/XMAML_0.0001_1e-05_0.0007_
 
 These libraries were modified:
 
-- `learn2learn` (Necessary code in `ourmaml.py`, which is the wrapper for MAML around UDify, adapted for different learning rates with SGD)
+- `learn2learn` (Necessary code in `ourmaml.py`, which is the wrapper for MAML around UDify, adapted for different learning rates with SGD in the inner loop)
 
-- `udify` (See directory/commi= history, minor tweaks with utf-8 encoding and parsing dependency trees while loading data)
+- `udify` (See directory/commit history, minor tweaks with utf-8 encoding and parsing dependency trees while loading data)
 
-- `allennlp==0.9.0` (See directory/commit history, minor tweaks with utf-8 encoding + UDify model working together)
+- `allennlp==0.9.0` Unfortunately this code depends on a previous version of allennlp (See directory/commit history, minor tweaks with utf-8 encoding + UDify model)
